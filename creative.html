@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>créative.digital.agency — Sites web premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ════════════════════════════════
+       TOKENS
+    ════════════════════════════════ */
+    :root {
+      --noir:   #070707;
+      --noir2:  #0d0d0d;
+      --noir3:  #151515;
+      --or:     #c9a84c;
+      --or-lt:  #e2c87e;
+      --blanc:  #f4efe6;
+      --blanc2: #e6e0d3;
+      --gris:   #6a6258;
+      --serif:  'Cormorant Garamond', Georgia, serif;
+      --sans:   'DM Sans', sans-serif;
+      --ease:   cubic-bezier(.25,.46,.45,.94);
+    }
+
+    /* ════════════════════════════════
+       RESET
+    ════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      background: var(--noir);
+      color: var(--blanc);
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+
+    /* grain overlay */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+      opacity: .55;
+    }
+
+    /* ════════════════════════════════
+       LAYOUT HELPERS
+    ════════════════════════════════ */
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 0 6vw; }
+    .sep  { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(201,168,76,.22), transparent); }
+
+    /* ════════════════════════════════
+       SCROLL REVEAL
+    ════════════════════════════════ */
+    .rv {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity .72s var(--ease), transform .72s var(--ease);
+    }
+    .rv.show { opacity: 1; transform: none; }
+    .rv.d1 { transition-delay: .07s; }
+    .rv.d2 { transition-delay: .15s; }
+    .rv.d3 { transition-delay: .23s; }
+    .rv.d4 { transition-delay: .31s; }
+    .rv.d5 { transition-delay: .39s; }
+
+    /* ════════════════════════════════
+       NAV
+    ════════════════════════════════ */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.7rem 6vw;
+      border-bottom: 1px solid transparent;
+      transition: background .4s var(--ease), padding .4s var(--ease), border-color .4s;
+    }
+    #nav.stuck {
+      background: rgba(7,7,7,.93);
+      backdrop-filter: blur(18px);
+      padding: 1.05rem 6vw;
+      border-color: rgba(201,168,76,.09);
+    }
+
+    .nav-logo {
+      font-family: var(--serif);
+      font-size: 1.12rem; letter-spacing: .03em;
+      color: var(--or); cursor: default;
+    }
+    .nav-logo span { color: rgba(244,239,230,.45); }
+
+    .nav-liens {
+      display: flex; align-items: center; gap: 2.8rem;
+    }
+    .nav-liens a {
+      font-size: .7rem; letter-spacing: .16em; text-transform: uppercase;
+      color: rgba(244,239,230,.42);
+      transition: color .3s;
+    }
+    .nav-liens a:hover { color: var(--or); }
+
+    /* Bouton "Démarrer un projet" dans la nav */
+    .nav-cta {
+      padding: .52rem 1.45rem;
+      border: 1px solid rgba(201,168,76,.35);
+      color: var(--or) !important;
+      font-size: .7rem; letter-spacing: .16em; text-transform: uppercase;
+      transition: background .3s, color .3s !important;
+    }
+    .nav-cta:hover { background: var(--or); color: var(--noir) !important; }
+
+    /* Burger mobile */
+    .burger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 4px; background: none; border: none;
+    }
+    .burger span {
+      display: block; width: 22px; height: 1px;
+      background: var(--blanc2); transition: .3s;
+    }
+    #nav.open .burger span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    #nav.open .burger span:nth-child(2) { opacity: 0; }
+    #nav.open .burger span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    /* ════════════════════════════════
+       HERO
+    ════════════════════════════════ */
+    #hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 0 6vw;
+      position: relative; overflow: hidden;
+    }
+
+    /* fond radial doré */
+    #hero::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 58% 52% at 78% 28%, rgba(201,168,76,.056) 0%, transparent 62%),
+        radial-gradient(ellipse 36% 42% at 12% 82%, rgba(201,168,76,.024) 0%, transparent 58%);
+    }
+    /* grille déco */
+    #hero::after {
+      content: '';
+      position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        repeating-linear-gradient(90deg, rgba(201,168,76,.013) 0, rgba(201,168,76,.013) 1px, transparent 1px, transparent 88px),
+        repeating-linear-gradient( 0deg, rgba(201,168,76,.013) 0, rgba(201,168,76,.013) 1px, transparent 1px, transparent 88px);
+    }
+
+    .hero-inner { position: relative; z-index: 1; max-width: 1060px; }
+
+    .hero-chip {
+      display: inline-flex; align-items: center; gap: .8rem;
+      font-size: .64rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--or); margin-bottom: 2.1rem;
+      opacity: 0; animation: glide .7s var(--ease) .18s forwards;
+    }
+    .hero-chip::before { content: ''; width: 26px; height: 1px; background: var(--or); }
+
+    .hero-h1 {
+      font-family: var(--serif);
+      font-size: clamp(3.5rem, 9.5vw, 9rem);
+      font-weight: 300; line-height: 1.01; letter-spacing: -.015em;
+      opacity: 0; animation: glide .95s var(--ease) .35s forwards;
+    }
+    .hero-h1 em { font-style: italic; color: var(--or); }
+    .hero-h1 .row2 { display: block; padding-left: clamp(2.5rem, 7.5vw, 10rem); }
+
+    .hero-desc {
+      max-width: 44ch; margin-top: 2.3rem;
+      font-size: 1rem; color: var(--gris); line-height: 1.88;
+      opacity: 0; animation: glide .7s var(--ease) .58s forwards;
+    }
+
+    /* ── Boutons hero ─────────────────── */
+    .hero-actions {
+      display: flex; align-items: center; gap: 2rem; margin-top: 3rem;
+      opacity: 0; animation: glide .7s var(--ease) .75s forwards;
+    }
+
+    /* Bouton doré plein — "Nous contacter" */
+    .btn-gold {
+      display: inline-flex; align-items: center; gap: .65rem;
+      padding: .95rem 2.4rem;
+      background: var(--or); color: var(--noir);
+      font-family: var(--sans); font-size: .72rem; font-weight: 500;
+      letter-spacing: .14em; text-transform: uppercase;
+      cursor: pointer;
+      transition: background .28s var(--ease), transform .22s var(--ease);
+    }
+    .btn-gold:hover { background: var(--or-lt); transform: translateY(-2px); }
+    .btn-gold svg { transition: transform .28s var(--ease); }
+    .btn-gold:hover svg { transform: translateX(5px); }
+
+    /* Lien texte — "À propos" */
+    .btn-link {
+      font-size: .7rem; letter-spacing: .15em; text-transform: uppercase;
+      color: rgba(244,239,230,.38);
+      border-bottom: 1px solid rgba(244,239,230,.14);
+      padding-bottom: 2px;
+      transition: color .28s, border-color .28s;
+    }
+    .btn-link:hover { color: var(--or); border-color: var(--or); }
+
+    /* indicateur scroll */
+    .hero-foot {
+      position: absolute; bottom: 2.8rem; left: 6vw; right: 6vw; z-index: 1;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      opacity: 0; animation: fade .8s var(--ease) 1.1s forwards;
+    }
+    .scroll-hint {
+      display: flex; flex-direction: column; align-items: center; gap: .45rem;
+      font-size: .58rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--gris);
+    }
+    .scroll-hint::after {
+      content: ''; width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--or), transparent);
+      animation: bar 2s ease-in-out infinite;
+    }
+    .hero-deco {
+      font-family: var(--serif); font-size: 6.5rem; font-weight: 300;
+      color: rgba(201,168,76,.038); line-height: 1; letter-spacing: -.04em;
+      user-select: none; pointer-events: none;
+    }
+
+    /* ════════════════════════════════
+       SECTION BASE
+    ════════════════════════════════ */
+    .s-tag {
+      display: inline-flex; align-items: center; gap: .7rem;
+      font-size: .63rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--or); margin-bottom: .9rem;
+    }
+    .s-tag::before { content: ''; width: 22px; height: 1px; background: var(--or); }
+
+    .s-titre {
+      font-family: var(--serif);
+      font-size: clamp(2.3rem, 4.5vw, 3.9rem);
+      font-weight: 300; line-height: 1.1;
+    }
+    .s-titre em { font-style: italic; color: var(--or); }
+
+    /* ════════════════════════════════
+       À PROPOS
+    ════════════════════════════════ */
+    #apropos { background: var(--noir2); }
+    .apropos-inner { padding: 9rem 0; }
+
+    .apropos-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8rem; margin-top: 4.5rem; align-items: start;
+    }
+
+    .apropos-texte p {
+      color: var(--gris); font-size: 1rem; line-height: 1.9; margin-top: 1.5rem;
+    }
+    .apropos-texte p:first-child { color: var(--blanc2); font-size: 1.07rem; }
+    .apropos-texte strong { color: var(--blanc); font-weight: 400; }
+
+    /* Colonne droite info */
+    .apropos-info { display: flex; flex-direction: column; gap: 2.8rem; }
+
+    .info-label {
+      font-size: .62rem; letter-spacing: .2em; text-transform: uppercase;
+      color: var(--or); margin-bottom: 1.2rem;
+      display: flex; align-items: center; gap: .6rem;
+    }
+    .info-label::before { content: ''; width: 14px; height: 1px; background: var(--or); }
+
+    .email-card {
+      display: flex; align-items: center; gap: .85rem;
+      padding: 1.1rem 1.4rem;
+      border: 1px solid rgba(201,168,76,.14);
+      font-size: .88rem; color: var(--blanc2);
+      transition: border-color .3s, color .3s, background .3s;
+      word-break: break-all;
+    }
+    .email-card svg { width: 14px; height: 14px; stroke: var(--or); fill: none; stroke-width: 1.5; flex-shrink: 0; }
+    .email-card:hover { border-color: var(--or); color: var(--or); background: rgba(201,168,76,.04); }
+
+    .rs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .55rem; }
+    .rs-item {
+      display: flex; align-items: center; gap: .7rem;
+      padding: .82rem 1rem;
+      border: 1px solid rgba(201,168,76,.11);
+      font-size: .78rem; color: var(--gris);
+      transition: border-color .3s, color .3s, background .3s;
+    }
+    .rs-item:hover { border-color: var(--or); color: var(--or); background: rgba(201,168,76,.04); }
+    .rs-item svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.5; flex-shrink: 0; }
+
+    /* ════════════════════════════════
+       SERVICES
+    ════════════════════════════════ */
+    #services { background: var(--noir); }
+    .services-inner { padding: 9rem 0; }
+
+    .svc-list { margin-top: 5rem; }
+
+    .svc {
+      display: grid; grid-template-columns: 52px 1fr 42px;
+      align-items: center; gap: 2.8rem;
+      padding: 2.5rem 0;
+      border-bottom: 1px solid rgba(201,168,76,.07);
+      position: relative; cursor: default;
+      transition: padding-left .28s var(--ease);
+    }
+    .svc:first-child { border-top: 1px solid rgba(201,168,76,.07); }
+    /* ligne dorée au hover */
+    .svc::after {
+      content: ''; position: absolute;
+      left: 0; right: 0; bottom: -1px; height: 1px;
+      background: linear-gradient(to right, var(--or), transparent);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .42s var(--ease);
+    }
+    .svc:hover::after { transform: scaleX(1); }
+    .svc:hover { padding-left: .55rem; }
+
+    .svc-n {
+      font-family: var(--serif); font-size: 1rem; font-weight: 300;
+      color: rgba(201,168,76,.26); line-height: 1;
+      transition: color .3s;
+    }
+    .svc:hover .svc-n { color: var(--or); }
+
+    .svc-body h3 {
+      font-family: var(--serif); font-size: 1.8rem; font-weight: 300;
+      transition: color .3s;
+    }
+    .svc:hover .svc-body h3 { color: var(--or); }
+    .svc-body p { color: var(--gris); font-size: .88rem; margin-top: .3rem; max-width: 50ch; line-height: 1.75; }
+
+    .svc-arrow {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid rgba(201,168,76,.14);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(201,168,76,.28);
+      transition: border-color .3s, color .3s, transform .38s var(--ease);
+    }
+    .svc:hover .svc-arrow { border-color: var(--or); color: var(--or); transform: rotate(45deg); }
+    .svc-arrow svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ════════════════════════════════
+       CONTACT
+    ════════════════════════════════ */
+    #contact { background: var(--noir2); }
+    .contact-inner { padding: 9rem 0; }
+
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1.22fr;
+      gap: 9rem; margin-top: 5rem; align-items: start;
+    }
+
+    .contact-lead {
+      font-family: var(--serif); font-size: 1.6rem; font-weight: 300;
+      line-height: 1.4; color: var(--blanc2);
+      margin-top: 2rem; margin-bottom: 2.8rem;
+    }
+    .contact-lead em { font-style: italic; color: var(--or); }
+
+    .c-link {
+      display: flex; align-items: center; gap: .95rem;
+      padding: 1.1rem 0;
+      border-bottom: 1px solid rgba(201,168,76,.07);
+      color: rgba(244,239,230,.52); font-size: .88rem;
+      transition: color .3s;
+    }
+    .c-link:first-of-type { border-top: 1px solid rgba(201,168,76,.07); }
+    .c-link:hover { color: var(--or); }
+    .c-link svg { width: 14px; height: 14px; stroke: var(--or); fill: none; stroke-width: 1.5; flex-shrink: 0; }
+
+    /* form */
+    .form { display: flex; flex-direction: column; }
+    .field { margin-bottom: 2.1rem; }
+    .field label {
+      display: block;
+      font-size: .6rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--gris); margin-bottom: .58rem;
+    }
+    .field input,
+    .field textarea {
+      width: 100%; background: transparent;
+      border: none; border-bottom: 1px solid rgba(201,168,76,.14);
+      color: var(--blanc); font-family: var(--sans); font-size: .92rem; font-weight: 300;
+      padding: .7rem 0; outline: none; resize: none;
+      transition: border-color .3s;
+    }
+    .field input::placeholder,
+    .field textarea::placeholder { color: rgba(201,168,76,.13); }
+    .field input:focus,
+    .field textarea:focus { border-color: var(--or); }
+    .field textarea { height: 108px; }
+
+    .send-btn {
+      display: inline-flex; align-items: center; gap: .62rem;
+      margin-top: .4rem; align-self: flex-start;
+      padding: .9rem 2.4rem;
+      background: transparent; border: 1px solid var(--or);
+      color: var(--or); font-family: var(--sans); font-size: .72rem; font-weight: 400;
+      letter-spacing: .14em; text-transform: uppercase;
+      cursor: pointer; position: relative; overflow: hidden;
+      transition: color .3s var(--ease);
+    }
+    .send-btn::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--or);
+      transform: translateX(-101%); transition: transform .3s var(--ease);
+    }
+    .send-btn:hover::before { transform: translateX(0); }
+    .send-btn:hover { color: var(--noir); }
+    .send-btn span,
+    .send-btn svg { position: relative; z-index: 1; }
+    .send-btn svg { transition: transform .28s; }
+    .send-btn:hover svg { transform: translateX(5px); }
+
+    .form-msg { margin-top: 1rem; font-size: .8rem; display: none; padding: .75rem 1.1rem; border-radius: 2px; }
+    .form-msg.ok  { background: rgba(23, 233, 3, 0.08); color: var(--or);  border: 1px solid rgba(201,168,76,.2);  display: block; }
+    .form-msg.err { background: rgba(200,60,60,.08);  color: #d67070;    border: 1px solid rgba(200,60,60,.2);   display: block; }
+
+    /* ════════════════════════════════
+       FOOTER
+    ════════════════════════════════ */
+    footer {
+      background: var(--noir);
+      border-top: 1px solid rgba(201,168,76,.07);
+    }
+    .footer-top {
+      max-width: 1160px; margin: 0 auto;
+      padding: 4.5rem 6vw 3.5rem;
+      display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4rem;
+    }
+    .f-brand-name {
+      font-family: var(--serif); font-size: 1.2rem; color: var(--or);
+    }
+    .f-brand-name span { color: rgba(244,239,230,.38); }
+    .f-brand-sub { color: var(--gris); font-size: .82rem; margin-top: .75rem; line-height: 1.72; max-width: 34ch; }
+
+    .f-col h5 {
+      font-size: .59rem; letter-spacing: .2em; text-transform: uppercase;
+      color: rgba(244,239,230,.22); margin-bottom: 1.3rem;
+    }
+    .f-col ul { display: flex; flex-direction: column; gap: .55rem; }
+    .f-col ul a { font-size: .82rem; color: var(--gris); transition: color .3s; }
+    .f-col ul a:hover { color: var(--blanc); }
+
+    .f-rs { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .2rem; }
+    .f-rs-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 1px solid rgba(201,168,76,.11);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gris);
+      transition: border-color .3s, color .3s;
+    }
+    .f-rs-btn:hover { border-color: var(--or); color: var(--or); }
+    .f-rs-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+
+    .footer-bot {
+      max-width: 1160px; margin: 0 auto;
+      padding: 1.3rem 6vw;
+      border-top: 1px solid rgba(201,168,76,.05);
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .6rem;
+    }
+    .footer-bot p { font-size: .64rem; color: rgba(106,98,88,.52); letter-spacing: .06em; }
+
+    /* ════════════════════════════════
+       KEYFRAMES
+    ════════════════════════════════ */
+    @keyframes glide { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+    @keyframes fade  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes bar {
+      0%,100% { opacity: 0; transform: scaleY(0); transform-origin: top; }
+      25%     { opacity: 1; transform: scaleY(1); }
+      75%     { opacity: 1; transform: scaleY(1); }
+    }
+
+    /* ════════════════════════════════
+       RESPONSIVE
+    ════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .apropos-grid  { grid-template-columns: 1fr; gap: 4rem; }
+      .contact-grid  { grid-template-columns: 1fr; gap: 4rem; }
+      .footer-top    { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 720px) {
+      .nav-liens { display: none; }
+      .burger    { display: flex; }
+      #nav.open .nav-liens {
+        display: flex; flex-direction: column;
+        position: fixed; inset: 0; top: 56px;
+        background: rgba(7,7,7,.98);
+        align-items: center; justify-content: center;
+        gap: 2.6rem; z-index: 499;
+      }
+      #nav.open .nav-liens a { font-size: 1.05rem; }
+      .svc { grid-template-columns: 42px 1fr; }
+      .svc-arrow { display: none; }
+      .rs-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; gap: 2.5rem; }
+      .hero-deco { display: none; }
+      .apropos-inner, .services-inner, .contact-inner { padding: 6rem 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     NAV
+════════════════════════════════════════ -->
+<nav id="nav">
+  <div class="nav-logo">créative<span>.digital.agency</span></div>
+
+  <ul class="nav-liens">
+    <li><a href="#apropos">À propos</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#contact">Démarrer un projet</a></li>
+  </ul>
+
+  <button class="burger" id="burger" aria-label="Ouvrir le menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ════════════════════════════════════════
+     HERO
+════════════════════════════════════════ -->
+<section id="hero">
+  <div class="hero-inner wrap">
+
+    <p class="hero-chip"></p>
+
+    <!-- ✏️ MODIFIABLE : titre principal -->
+    <h1 class="hero-h1">
+      Votre présence<br>
+      <span class="row2">en ligne, <em>autrement.</em></span>
+    </h1>
+
+    <!-- ✏️ MODIFIABLE : texte de présentation -->
+    <p class="hero-desc">
+      Nous concevons des sites web modernes, rapides et sur-mesure pour les entreprises, artisans et indépendants qui veulent faire la différence.
+    </p>
+
+    <div class="hero-actions">
+      <!-- ✅ Clique → descend vers #contact -->
+      <a href="#contact" class="btn-gold">
+        <span>Nous contacter</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+      <!-- ✅ Clique → descend vers #apropos -->
+      <a href="#apropos" class="btn-link">À propos</a>
+    </div>
+
+  </div>
+
+  <div class="hero-foot wrap">
+    <div class="" aria-hidden="true"></div>
+    <div class="hero-deco" aria-hidden="true">CDA</div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ════════════════════════════════════════
+     À PROPOS
+════════════════════════════════════════ -->
+<section id="apropos">
+  <div class="wrap">
+    <div class="apropos-inner">
+
+      <p class="s-tag rv">Notre histoire</p>
+      <h2 class="s-titre rv d1">Une agence au service de <em>votre visibilité.</em></h2>
+
+      <div class="apropos-grid">
+
+        <!-- ✏️ MODIFIABLE : texte à propos -->
+        <div class="apropos-texte rv d2">
+          <p>
+            Nous sommes une agence spécialisée dans la conception de sites web modernes, rapides et sur-mesure. <strong>créative.digital.agency</strong> accompagne entreprises, artisans et indépendants dans leur transition numérique.
+          </p>
+          <p>
+            Chaque projet est unique. Nous travaillons en étroite collaboration avec nos clients — de la conception jusqu'à la mise en ligne — pour livrer un résultat qui correspond exactement à leur identité et à leurs objectifs.
+          </p>
+          <p>
+            Notre priorité : un site rapide, accessible, optimisé pour Google, et qui donne envie de rester.
+          </p>
+        </div>
+
+        <!-- Email + Réseaux sociaux -->
+        <div class="apropos-info rv d3">
+
+          <!-- ✏️ MODIFIABLE : adresse email -->
+          <div>
+            <p class="info-label">Adresse email</p>
+            <a href="mailto:creativedigitalagency.cda@gmail.com" class="email-card">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              creativedigitalagency.cda@gmail.com
+            </a>
+          </div>
+
+          <!-- ✏️ MODIFIABLE : remplacez les href="#" par vos URLs -->
+          <div>
+            <p class="info-label">Retrouvez-nous sur</p>
+            <div class="rs-grid">
+              <a href="https://www.instagram.com/creative.digital.agency.cda?igsh=MTRmcmg2OXZweXR2Ng%3D%3D&utm_source=qr" class="rs-item" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                Instagram
+              </a>
+              <a href="https://www.facebook.com/people/Wwe-Wwe/61579681624292/?mibextid=wwXIfr&rdid=8Ti56imVd6dKKYKL&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F186oNDbY7s%2F%3Fmibextid%3DwwXIfr" class="rs-item" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                Facebook
+              </a>
+              <a href="https://www.linkedin.com/in/creative-digital-agency-805b043b7/?utm_source=share_via&utm_content=profile&utm_medium=member_ios" class="rs-item" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                LinkedIn
+              </a>
+              <a href="https://x.com/cdaagecy?s=21" class="rs-item" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+                Twitter
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ════════════════════════════════════════
+     SERVICES
+════════════════════════════════════════ -->
+<section id="services">
+  <div class="wrap">
+    <div class="services-inner">
+
+      <p class="s-tag rv">Ce que nous faisons</p>
+      <h2 class="s-titre rv d1">Nos <em>services</em></h2>
+
+      <div class="svc-list">
+        <div class="svc rv d1">
+          <span class="svc-n">01</span>
+          <div class="svc-body">
+            <h3>Sites web vitrines</h3>
+            <p>Conception complète : design, intégration, textes . Un site qui vous ressemble et convertit vos visiteurs.</p>
+          </div>
+          <div class="svc-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+        </div>
+
+        <div class="svc rv d2">
+          <span class="svc-n">02</span>
+          <div class="svc-body">
+            <h3>Design responsive</h3>
+            <p>Mobile, tablette, ordinateur — votre site s'adapte à tous les écrans avec fluidité et élégance.</p>
+          </div>
+          <div class="svc-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+        </div>
+
+        <div class="svc rv d3">
+          <span class="svc-n">03</span>
+          <div class="svc-body">
+            <h3>Mise en ligne & domaine</h3>
+            <p>Hébergement, nom de domaine,  et e-mails pro — nous gérons tout pour que vous soyez visible rapidement.</p>
+          </div>
+          <div class="svc-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+        </div>
+
+        <div class="svc rv d4">
+          <span class="svc-n">04</span>
+          <div class="svc-body">
+            <h3>Maintenance & évolutions</h3>
+            <p>Mises à jour, ajouts de contenu, nouvelles fonctionnalités — nous restons disponibles après la livraison.</p>
+          </div>
+          <div class="svc-arrow"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- ════════════════════════════════════════
+     CONTACT
+════════════════════════════════════════ -->
+<section id="contact">
+  <div class="wrap">
+    <div class="contact-inner">
+
+      <p class="s-tag rv">Parlons de votre projet</p>
+      <h2 class="s-titre rv d1">Nous <em>contacter</em></h2>
+
+      <div class="contact-grid">
+
+        <!-- Info gauche -->
+        <div class="rv d2">
+          <p class="contact-lead">Prêt à donner vie<br>à votre <em>projet&nbsp;?</em></p>
+
+          <!-- ✏️ MODIFIABLE : email -->
+          <a href="mailto:creativedigitalagency.cda@gmail.com" class="c-link">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            creativedigitalagency.cda@gmail.com
+          </a>
+          <!-- ✏️ Décommentez pour ajouter un téléphone :
+          <a href="tel:+33600000000" class="c-link">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.56a16 16 0 0 0 6.53 6.53l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            +33 6 00 00 00 00
+          </a>
+          -->
+        </div>
+
+        <!-- Formulaire Formspree -->
+        <!--
+          ⚠️ ACTIVATION FORMSPREE :
+          1. Créez un compte gratuit sur https://formspree.io
+          2. Nouveau formulaire → email : creativedigitalagency.cda@gmail.com
+          3. Remplacez VOTRE_ID par votre identifiant Formspree
+        -->
+        <form id="contactForm" class="form rv d3"
+              action="https://formspree.io/f/xpqyyrow"
+              method="POST">
+          <input type="hidden" name="_subject" value="Nouveau message — créative.digital.agency">
+          <input type="text"   name="_gotcha"  style="display:none">
+
+          <div class="field">
+            <label for="nom">Nom complet</label>
+            <input type="text" id="nom" name="nom" placeholder="Jean Dupont" required>
+          </div>
+          <div class="field">
+            <label for="email">Adresse email</label>
+            <input type="email" id="email" name="email" placeholder="jean@exemple.fr" required>
+          </div>
+          <div class="field">
+            <label for="msg">Votre message</label>
+            <textarea id="msg" name="message" placeholder="Décrivez votre projet..." required></textarea>
+          </div>
+
+          <button type="submit" class="send-btn">
+            <span>Envoyer le message</span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </button>
+
+          <div class="form-msg" id="formMsg"></div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════ -->
+<footer>
+  <div class="footer-top">
+
+    <div>
+      <p class="f-brand-name">créative<span>.digital.agency</span></p>
+      <!-- ✏️ MODIFIABLE : tagline footer -->
+      <p class="f-brand-sub">Des sites web qui font la différence — pour entreprises, artisans et indépendants.</p>
+    </div>
+
+    <div class="f-col">
+      <h5>Navigation</h5>
+      <ul>
+        <li><a href="#apropos">À propos</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="f-col">
+      <h5>Réseaux</h5>
+      <!-- ✏️ MODIFIABLE : remplacez les href="#" par vos URLs -->
+      <div class="f-rs">
+        <a href="https://www.instagram.com/creative.digital.agency.cda?igsh=MTRmcmg2OXZweXR2Ng%3D%3D&utm_source=qr" class="f-rs-btn" title="Instagram" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="https://www.facebook.com/people/Wwe-Wwe/61579681624292/?mibextid=wwXIfr&rdid=8Ti56imVd6dKKYKL&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F186oNDbY7s%2F%3Fmibextid%3DwwXIfr" class="f-rs-btn" title="Facebook" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/in/creative-digital-agency-805b043b7/?utm_source=share_via&utm_content=profile&utm_medium=member_ios" class="f-rs-btn" title="LinkedIn" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+        <a href="https://x.com/cdaagecy?s=21" class="f-rs-btn" title="Twitter" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+        </a>
+        <a href="mailto:creativedigitalagency.cda@gmail.com" class="f-rs-btn" title="Email">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bot">
+    <p>© <span id="yr"></span> créative.digital.agency — Tous droits réservés</p>
+    <p></p>
+  </div>
+</footer>
+
+<!-- ════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+  /* ── Année ───────────────────────────── */
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  /* ── Smooth scroll sur tous les liens ancre ─── */
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      const target = document.querySelector(this.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+      // ferme le menu mobile si ouvert
+      nav.classList.remove('open');
+      const offset = 72; // hauteur nav fixe
+      const top = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior: 'smooth' });
+    });
+  });
+
+  /* ── Nav sticky ──────────────────────── */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('stuck', window.scrollY > 55);
+  }, { passive: true });
+
+  /* ── Burger mobile ───────────────────── */
+  document.getElementById('burger').addEventListener('click', () => {
+    nav.classList.toggle('open');
+  });
+
+  /* ── Scroll reveal ───────────────────── */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('show');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.rv').forEach(el => observer.observe(el));
+
+  /* ── Formulaire AJAX (Formspree) ──────── */
+  const form = document.getElementById('contactForm');
+  const msg  = document.getElementById('formMsg');
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btnLabel = form.querySelector('.send-btn span');
+    btnLabel.textContent = 'Envoi en cours…';
+    msg.className = 'form-msg';
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: new FormData(form)
+      });
+      if (res.ok) {
+        msg.className = 'form-msg ok';
+        msg.textContent = ' Message envoyé ! Nous vous répondons sous 24 h.';
+        form.reset();
+      } else {
+        throw new Error('server');
+      }
+    } catch {
+      msg.className = 'form-msg err';
+      msg.textContent = ' Erreur. Écrivez-nous à creativedigitalagency.cda@gmail.com';
+    }
+
+    btnLabel.textContent = 'Envoyer le message';
+  });
+</script>
+
+</body>
+</html>
